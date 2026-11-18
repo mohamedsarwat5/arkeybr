@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>كيبر عربي – تمرين الكتابة باللمس</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Naskh+Arabic:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f5f3;--fg:#14262b;--mut:#8aa0a0;--card:#fff;--line:#d5e0dd;--acc:#0e7c86;--cur:#ffe08a;--bad:#ff8a80;--ok:#8aa0a0;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1b1f;--fg:#e6f0ee;--mut:#6f8a8c;--card:#16272c;--line:#27393e;--acc:#3cc4cf;--cur:#5a4a12;--bad:#7a2b2b;--ok:#5f7b7d}}
+:root[data-theme="dark"]{--bg:#0f1b1f;--fg:#e6f0ee;--mut:#6f8a8c;--card:#16272c;--line:#27393e;--acc:#3cc4cf;--cur:#5a4a12;--bad:#7a2b2b;--ok:#5f7b7d}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:Cairo,system-ui,sans-serif;min-height:100vh}
+main{max-width:860px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.3rem;margin:0 0 4px}
+.sub{color:var(--mut);font-size:.9rem;margin:0 0 18px}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.st{flex:1 1 90px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.st b{display:block;font-size:1.5rem;color:var(--acc)}
+.st span{font-size:.8rem;color:var(--mut)}
+#box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 20px;outline:none;min-height:150px}
+#box:focus{border-color:var(--acc)}
+#txt{font-family:"Noto Naskh Arabic",Cairo,serif;font-weight:500;font-size:clamp(1.7rem,5vw,2.5rem);line-height:2.1;direction:rtl}
+#txt i{font-style:normal;border-radius:5px}
+#txt .w{white-space:nowrap}
+#txt .ok{color:var(--ok)}
+#txt .cur{background:var(--cur)}
+#txt .err{background:var(--bad)}
+.hint{color:var(--mut);font-size:.82rem;margin:8px 2px 18px}
+h2{font-size:1rem;margin:20px 0 8px}
+#grid{display:flex;flex-wrap:wrap;gap:6px}
+.L{width:42px;height:46px;border-radius:8px;border:1px solid var(--line);background:linear-gradient(to top,var(--acc) var(--c),var(--card) var(--c));display:flex;align-items:center;justify-content:center;font-family:"Noto Naskh Arabic",serif;font-size:1.4rem;font-weight:700}
+.L.off{opacity:.3;background:var(--card)}
+.L.foc{outline:3px solid var(--acc);outline-offset:1px}
+#kb{direction:ltr;display:flex;flex-direction:column;gap:5px;align-items:flex-start;overflow-x:auto;padding-bottom:4px}
+.r{display:flex;gap:5px}
+.r2{margin-left:14px}.r3{margin-left:30px}
+.k{width:34px;height:36px;flex:none;border-radius:7px;border:1px solid var(--line);background:var(--card);display:flex;align-items:center;justify-content:center;font-family:"Noto Naskh Arabic",serif;font-size:1.1rem;font-weight:500}
+.k.sb{width:230px;margin-left:80px}
+.k.nx{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+.ctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:20px;font-size:.9rem}
+select,button{font:inherit;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:6px 12px}
+button{cursor:pointer}
+#toast{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:var(--acc);color:var(--bg);padding:8px 18px;border-radius:20px;font-weight:700;opacity:0;transition:opacity .25s;pointer-events:none}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<main>
+<h1>كيبر عربي</h1>
+<p class="sub">كلمات حقيقية، وحرف جديد بيتفتح لما تتقن اللي قبله.</p>
+<div class="stats">
+<div class="st"><b id="sw">0</b><span>كلمة في الدقيقة</span></div>
+<div class="st"><b id="sa">100%</b><span>الدقة</span></div>
+<div class="st"><b id="su">6</b><span>حروف مفتوحة من 33</span></div>
+</div>
+<div id="box" tabindex="0"><div id="txt"></div></div>
+<p class="hint">اضغط داخل المربع وابدأ اكتب. بتحتاج كيبورد فعلي. الحرف الغلط مش بيتخطى، اضغط الصح عشان تكمل.</p>
+<h2>الحروف</h2>
+<div id="grid"></div>
+<h2>الكيبورد</h2>
+<div id="kb"></div>
+<div class="ctl">
+<label>السرعة المطلوبة لفتح حرف جديد
+<select id="tw"><option value="20">20</option><option value="30">30</option><option value="40">40</option><option value="50">50</option></select> كلمة/د</label>
+<button id="rs">مسح التقدم</button>
+</div>
+</main>
+<div id="toast"></div>
+<script>
+const $=s=>document.querySelector(s);
+const ORDER=[..."الينمورتبعكدسهفقحجشصضطثخزغظذةىءئؤ"];
+const R1=[["KeyQ","ض"],["KeyW","ص"],["KeyE","ث"],["KeyR","ق"],["KeyT","ف"],["KeyY","غ"],["KeyU","ع"],["KeyI","ه"],["KeyO","خ"],["KeyP","ح"],["BracketLeft","ج"],["BracketRight","د"]];
+const R2=[["KeyA","ش"],["KeyS","س"],["KeyD","ي"],["KeyF","ب"],["KeyG","ل"],["KeyH","ا"],["KeyJ","ت"],["KeyK","ن"],["KeyL","م"],["Semicolon","ك"],["Quote","ط"]];
+const R3=[["KeyZ","ئ"],["KeyX","ء"],["KeyC","ؤ"],["KeyV","ر"],["KeyN","ى"],["KeyM","ة"],["Comma","و"],["Period","ز"],["Slash","ظ"]];
+const ROWS=[[["Backquote","ذ"]],R1,R2,R3],MAP={};
+ROWS.flat().forEach(([c,a])=>MAP[c]=a);
+$("#kb").innerHTML=ROWS.map((r,i)=>`<div class="r r${i}">${r.map(([c,a])=>`<b class="k" data-c="${a}">${a}</b>`).join("")}</div>`).join("")+`<div class="r"><b class="k sb" data-c=" "></b></div>`;
+
+const RAW=`من ما لا لم لن لو في لي ولا ولم ولن ولو ومن وما ولي يوم ليل نوم ميل نيل نمل مني لوم نام مال نال والي يلي ميم لين ويل
+ممر مرور نور رمل تين ليت نبي بني مي هذا هذه ذلك التي الذي كان كانت يكون ليس قد كل بعد قبل بين حتى ثم هو هي نحن هم هنا هناك متى كيف ماذا لماذا
+على عن مع بيت باب كتاب قلم ورق ماء نار هواء سماء شمس قمر نجم بحر نهر جبل شجر ورد زهر طير سمك قط كلب حصان جمل بقرة فيل عين يد رجل وجه قلب عقل روح جسم دم لسان سن شعر ولد بنت جد جدة عم خال صديق ناس سيدة
+مدرسة جامعة مدينة قرية بلد شارع طريق سيارة قطار طيارة سفينة غرفة مطبخ حمام نافذة مفتاح كرسي طاولة سرير ساعة ليل نهار صباح مساء شهر سنة وقت زمن عمل شغل مال سوق ثمن خبز لحم سكر ملح شاي قهوة لبن عسل تفاح موز برتقال عنب تمر زيت
+كتب ذهب رجع دخل خرج فتح جلس وقف مشى شرب سمع نظر قال فعل علم فهم حفظ لعب ركض سبح غنى رسم بنى وجد طلب حمل وصل سافر عاد بدا ترك يحب يعرف يعلم يفهم يكتب يذهب يعمل يلعب يشرب يسمع يقول
+كبير صغير جميل طويل قصير جديد قديم سريع قوي ضعيف سهل صعب حار بارد حلو نظيف واسع ضيق عالي واضح غني فقير سعيد حزين شجاع كريم صادق ذكي هادئ طيب حمراء زرقاء خضراء سوداء بيضاء صفراء
+عالم ثقافة لغة عربية حياة موت حب حرب سلام حق عدل حرية خير شر فكرة سؤال جواب مثال معنى كلمة حرف جملة صوت صورة فيلم موسيقى لعبة رياضة كرة فريق لاعب ملعب هدف نجاح تعب راحة حلم خوف فرح غضب صبر شكر عفو
+عند لدى نحو ضد حول تحت فوق خلف يمين شمال داخل خارج قرب بعيد واحد ثلاثة خمسة ستة سبعة ثمانية تسعة عشرة مئة دائما فقط جدا كثير قليل بعض كثيرا اليوم غدا
+ظهر ظل حظ عظيم ظلم ضوء مريض ضيف طفل طعام ثقة حليب حديقة مؤمن مسؤول رئيس هيئة شيء بيئة جزء دواء بناء فضاء قراءة جاء`;
+const WORDS=[...new Set(RAW.split(/\s+/))].filter(w=>w&&[...w].every(c=>ORDER.includes(c)));
+
+let st={S:{},u:6,w:30};
+try{const j=JSON.parse(localStorage.getItem("kbrAr1")||"null");if(j&&j.S)st=j}catch(e){}
+const save=()=>{try{localStorage.setItem("kbrAr1",JSON.stringify(st))}catch(e){}};
+const tgt=()=>12000/st.w;
+const unl=()=>ORDER.slice(0,st.u);
+function conf(c){const s=st.S[c];if(!s||s.n<8)return 0;let v=Math.min(1,tgt()/s.t);if(s.e>.12)v*=.7;return v}
+function focus(){let f=ORDER[0],m=9;for(const c of unl()){const v=conf(c);if(v<=m){m=v;f=c}}return f}
+function pick(){
+  const U=new Set(unl()),f=focus();
+  let pool=WORDS.filter(w=>[...w].every(c=>U.has(c)));
+  if(!pool.length)pool=[...U].map(c=>c+c);
+  const wt=pool.map(w=>1+([...w].includes(f)?8:0)+[...w].reduce((a,c)=>a+(1-conf(c))*.4,0));
+  const tot=wt.reduce((a,b)=>a+b,0),out=[];let last="";
+  while(out.length<12){let r=Math.random()*tot,i=0;for(;i<pool.length-1&&(r-=wt[i])>0;i++);
+    if(pool[i]===last&&pool.length>1)continue;out.push(pool[i]);last=pool[i]}
+  return out;
+}
+
+let words,text,els,p,last,dts=[],hits=0,miss=0;
+function newPara(){
+  words=pick();text=words.join(" ");p=0;last=0;
+  $("#txt").innerHTML=words.map(w=>`<span class="w">${[...w].map(c=>`<i>${c}</i>`).join("")}</span>`).join('<i class="sp"> </i>');
+  els=[...$("#txt").querySelectorAll("i")];
+  els[0].classList.add("cur");draw();
+}
+function draw(){
+  const f=focus();
+  $("#grid").innerHTML=ORDER.map((c,i)=>{const on=i<st.u;const s=st.S[c];
+    return `<div class="L${on?"":" off"}${on&&c===f?" foc":""}" style="--c:${Math.round(conf(c)*100)}%" title="${s?Math.round(s.t)+" ms":""}">${c}</div>`}).join("");
+  const nx=text[p];
+  document.querySelectorAll(".k").forEach(k=>k.classList.toggle("nx",k.dataset.c===nx));
+  $("#su").textContent=st.u;
+  $("#sw").textContent=dts.length?Math.round(12000/(dts.reduce((a,b)=>a+b,0)/dts.length)):0;
+  $("#sa").textContent=(hits+miss?Math.round(hits/(hits+miss)*100):100)+"%";
+}
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");setTimeout(()=>t.classList.remove("on"),2200)}
+function keyChar(e){
+  if(e.code==="Space")return " ";
+  if(/^[\u0621-\u064A]$/.test(e.key))return e.key;
+  return MAP[e.code]||null;
+}
+function endPara(){
+  if(st.u<ORDER.length&&unl().every(c=>conf(c)>=1)){st.u++;toast("اتفتح حرف جديد: "+ORDER[st.u-1])}
+  save();newPara();
+}
+addEventListener("keydown",e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey||e.target.tagName==="SELECT")return;
+  const ch=keyChar(e);if(!ch)return;
+  e.preventDefault();
+  const now=performance.now(),want=text[p];
+  if(ch===want){
+    els[p].classList.remove("cur","err");els[p].classList.add("ok");
+    if(want!==" "){
+      const s=st.S[want]||(st.S[want]={t:0,n:0,e:0});
+      if(last){const dt=Math.min(now-last,2000);s.t=s.n?s.t*.85+dt*.15:dt;s.n++;dts.push(dt);if(dts.length>40)dts.shift()}
+      s.e*=.92;
+    }
+    hits++;last=now;p++;
+    if(p>=text.length){endPara();return}
+    els[p].classList.add("cur");
+  }else{
+    if(want!==" "){const s=st.S[want]||(st.S[want]={t:0,n:0,e:0});s.e=s.e*.92+.08}
+    miss++;const el=els[p];el.classList.add("err");setTimeout(()=>el.classList.remove("err"),160);
+  }
+  draw();
+});
+$("#tw").value=st.w;
+$("#tw").onchange=e=>{st.w=+e.target.value;save();draw()};
+let armed=false;
+$("#rs").onclick=()=>{
+  if(!armed){armed=true;$("#rs").textContent="اضغط تاني للتأكيد";setTimeout(()=>{armed=false;$("#rs").textContent="مسح التقدم"},3000);return}
+  st={S:{},u:6,w:st.w};save();dts=[];hits=0;miss=0;armed=false;$("#rs").textContent="مسح التقدم";newPara();
+};
+newPara();$("#box").focus();
+</script>
+</body>
+</html>
